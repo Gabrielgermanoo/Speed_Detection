@@ -1,3 +1,7 @@
+menu "Zephyr"
+source "Kconfig.zephyr"
+endmenu
+
 menu "Tracker Configuration"
     menu "Vehicle Speed Detection"
 
@@ -5,9 +9,9 @@ menu "Tracker Configuration"
         bool "Enable Vehicle Speed Detection"
         default y
         help
-        This option enables the vehicle speed detection feature in the system.
-        It allows the system to monitor and report the speed of the vehicle in real-time.
-        This feature is essential for applications that require speed monitoring and control.
+            This option enables the vehicle speed detection feature in the system.
+            It allows the system to monitor and report the speed of the vehicle in real-time.
+            This feature is essential for applications that require speed monitoring and control.
     config SENSOR_DISTANCE_MM
         int "Distance between sensors (mm)"
         range 100 1000
@@ -30,6 +34,4 @@ menu "Tracker Configuration"
             out noise and false signals, but may also delay the detection of a vehicle.
             A value of 10ms is generally a good starting point.
     endmenu
-
-    menu ""
 endmenu

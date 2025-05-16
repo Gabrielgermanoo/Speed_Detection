@@ -5,4 +5,8 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(tracker)
 
-target_sources(app PRIVATE src/main.c)
+include_directories(./include/)
+
+file(GLOB_RECURSE SRC ${CMAKE_SOURCE_DIR} "src/*.c")
+
+target_sources(app PRIVATE ${SRC})
