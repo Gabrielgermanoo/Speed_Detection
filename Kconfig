@@ -1,0 +1,35 @@
+menu "Tracker Configuration"
+    menu "Vehicle Speed Detection"
+
+    config VEHICLE_SPEED_DETECTION
+        bool "Enable Vehicle Speed Detection"
+        default y
+        help
+        This option enables the vehicle speed detection feature in the system.
+        It allows the system to monitor and report the speed of the vehicle in real-time.
+        This feature is essential for applications that require speed monitoring and control.
+    config SENSOR_DISTANCE_MM
+        int "Distance between sensors (mm)"
+        range 100 1000
+        depends on VEHICLE_SPEED_DETECTION
+        help
+            The physical distance between the two magnetic sensors in millimeters.
+            This value is used to calculate vehicle speed when a vehicle passes
+            over both sensors. A larger distance generally provides more accurate
+            speed measurements but requires more space for installation.
+
+    config SENSOR_DEBOUNCE_MS
+        int "Sensor debounce time (ms)"
+        range 10 500
+        default 50
+        depends on VEHICLE_SPEED_DETECTION
+        help
+            The debounce time for the sensors in milliseconds. This is the time
+            that the system will wait after detecting a signal from one sensor
+            before considering it valid. A longer debounce time can help to filter
+            out noise and false signals, but may also delay the detection of a vehicle.
+            A value of 10ms is generally a good starting point.
+    endmenu
+
+    menu ""
+endmenu

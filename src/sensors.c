@@ -1,0 +1,6 @@
+#include "sensors.h"
+
+#define SENSOR_1 DEVICE_DT_GET(DT_NODELABEL(gpio5))
+#define SENSOR_2 DEVICE_DT_GET(DT_NODELABEL(gpio6))
+
+LOG_MODULE_REGISTER(sensors, CONFIG_SENSOR_DEBUG_LEVEL);
