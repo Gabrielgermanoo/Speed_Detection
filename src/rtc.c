@@ -1,4 +1,6 @@
 #include "rtc.h"
+#include "zephyr/init.h"
+#include <zephyr/posix/arpa/inet.h>
 
 LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 

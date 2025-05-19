@@ -5,6 +5,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/device.h>
 #include <zephyr/settings/settings.h>
+#include <zephyr/net/net_ip.h>
 
 #include <stdint.h>
 #include <stdbool.h>

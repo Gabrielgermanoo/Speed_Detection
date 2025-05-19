@@ -34,4 +34,27 @@ menu "Tracker Configuration"
             out noise and false signals, but may also delay the detection of a vehicle.
             A value of 10ms is generally a good starting point.
     endmenu
+    
+    menu "Thread Configuration"
+        config THREAD_STACK_SIZE
+            int "Max stack size used in threads"
+            default 1024
+            help
+                The maximum stack size used in threads. This value is used to
+                allocate the stack space for each thread. A larger stack size
+                allows for more complex operations and more local variables,
+                but also consumes more memory. A value of 1024 bytes is generally
+                a good starting point for most applications.
+
+        config THREAD_PRIORITY
+            int "Thread priority"
+            default 5
+            range 0 10
+            help
+                The priority of the threads in the system. This value determines
+                the order in which threads are scheduled for execution. A higher
+                priority value means that the thread will be executed before
+                lower priority threads. A value of 5 is generally a good starting
+                point for most applications.
+    endmenu
 endmenu
