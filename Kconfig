@@ -68,4 +68,15 @@ menu "Tracker Configuration"
                 lower priority threads. A value of 5 is generally a good starting
                 point for most applications.
     endmenu
+
+    menu "SNTP Configuration"
+        config DEFAULT_SNTP_SERVER
+            string "Default SNTP server"
+            default "200.160.7.193"
+            help
+                The default SNTP server to use for time synchronization. This
+                server will be used if no other server is specified. The server
+                should be reachable from the network and should support SNTP
+                requests.
+    endmenu
 endmenu
