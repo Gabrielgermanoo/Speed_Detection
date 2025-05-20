@@ -4,15 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
- #include <stdio.h>
- #include <zephyr/logging/log.h>
  #include "sensors.h"
  #include "rtc.h"
  
  LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
- 
- #define SPEED_LIMIT_KMH 60
- 
+  
  int main(void)
  {
 	 int ret = sensors_init();
@@ -25,13 +21,13 @@
 	 LOG_INF("Vehicle detection system started");
  
 	 while (1) {
-		 k_sleep(K_SECONDS(1));
+		 k_sleep(K_MSEC(500));
  
 		 if (sensors_is_vehicle_detected()) {
 			 int32_t speed = sensors_get_speed();
 			 LOG_INF("Vehicle detected at %d km/h", speed);
  
-			 if (speed > SPEED_LIMIT_KMH) {
+			 if (speed > CONFIG_SPEED_LIMIT_KMH) {
 				 struct rtc_time now;
 				 LOG_INF("Speed violation detected!");
  

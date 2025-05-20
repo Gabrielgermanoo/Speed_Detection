@@ -21,6 +21,17 @@ menu "Tracker Configuration"
             This value is used to calculate vehicle speed when a vehicle passes
             over both sensors. A larger distance generally provides more accurate
             speed measurements but requires more space for installation.
+    
+    config SPEED_LIMIT_KMH
+        int "Maximum speed permited (km/h)"
+        range 10 300
+        default 60
+        depends on VEHICLE_SPEED_DETECTION
+        help
+            The maximum allowed vehicle speed in kilometers per hour.
+            This value is used to trigger alarms or log over-speed events
+            when a vehicle's calculated speed exceeds this limit.
+            Adjust this setting according to local traffic regulations.
 
     config SENSOR_DEBOUNCE_MS
         int "Sensor debounce time (ms)"
