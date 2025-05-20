@@ -1,8 +1,14 @@
 #include "rtc.h"
 
+LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
+
 #define RTC_DEVICE DEVICE_DT_GET(DT_NODELABEL(rtc))
 
-static struct rtc_time {
+#define SYS_TIME_SETTINGS_KEY "data"
+
+#define SYS_TIME_SETTINGS_PREFIX "sys_time"
+
+static struct sys_time {
 	char server[64];
 	int8_t timezone;
 } self = {.server = "pool.ntp.org", .timezone = 0};
