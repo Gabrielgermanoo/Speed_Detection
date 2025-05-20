@@ -29,6 +29,6 @@ int32_t sensors_get_speed(void);
  * 
  * @return true if a vehicle is detected, otherwise false.
  */
-bool sensors_vehicle_detected(void);
+bool sensors_is_vehicle_detected(void);
 
 #endif /* SENSORS_H */
