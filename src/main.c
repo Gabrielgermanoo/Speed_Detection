@@ -57,6 +57,7 @@ int main(void)
 					}
 				}
 			}
+			sensors_clear_detection();
 			/* TODO show the value of the vehicle velocity */
 		}
 	}

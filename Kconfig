@@ -72,7 +72,7 @@ menu "Tracker Configuration"
     menu "SNTP Configuration"
         config DEFAULT_SNTP_SERVER
             string "Default SNTP server"
-            default "200.160.0.8"
+            default "200.160.7.186"
             help
                 The default SNTP server to use for time synchronization. This
                 server will be used if no other server is specified. The server

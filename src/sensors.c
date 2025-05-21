@@ -1,5 +1,6 @@
 #include "sensors.h"
 #include "zephyr/drivers/gpio.h"
+#include <stdbool.h>
 #include <zephyr/kernel.h>
 
 #define SENSOR_1 DEVICE_DT_GET(DT_ALIAS(sensor1))
@@ -85,7 +86,7 @@ static void speed_calc_thread_entry(void *arg1, void *arg2, void *arg3)
 	float time_diff_s = 0.0f;
 
 	while (1) {
-		k_sem_take(&measurement_sem, K_MSEC(10000));
+		k_sem_take(&measurement_sem, K_MSEC(1000));
 
 		time_diff_ms = sensor2_timestamp - sensor1_timestamp;
 
@@ -96,7 +97,7 @@ static void speed_calc_thread_entry(void *arg1, void *arg2, void *arg3)
 
 		if (IS_ENABLED(CONFIG_SYSTEM_SIMULATION)) {
 			sensors_simulate_vehicle_detection(120);
-			k_sleep(K_SECONDS(2));
+			k_sleep(K_SECONDS(5));
 			continue;
 		}
 
@@ -180,6 +181,11 @@ int32_t sensors_get_speed(void)
 bool sensors_is_vehicle_detected(void)
 {
 	return vehicle_detected;
+}
+
+void sensors_clear_detection(void)
+{
+    vehicle_detected = false;
 }
 
 int sensors_simulate_vehicle_detection(int32_t speed_kmh)
