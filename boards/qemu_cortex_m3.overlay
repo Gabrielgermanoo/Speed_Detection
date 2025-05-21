@@ -1,0 +1,9 @@
+/ {
+    aliases {
+        sensor1 = &gpio5;
+        sensor2 = &gpio6;
+    };
+};
+&eth {
+    status = "okay";
+};

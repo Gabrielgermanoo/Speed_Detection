@@ -15,6 +15,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+extern struct k_msgq time_msgq;
+
 /**
  * @brief Function to get the current time from SNTP server.
  *

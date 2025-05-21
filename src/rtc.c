@@ -2,8 +2,6 @@
 
 LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
-#define RTC_DEVICE DEVICE_DT_GET(DT_NODELABEL(rtc))
-
 #define SYS_TIME_SETTINGS_KEY    "data"
 #define SYS_TIME_SETTINGS_PREFIX "sys_time"
 #define TIME_QUEUE_SIZE          5
@@ -17,7 +15,7 @@ static struct sys_time {
 
 /**
  * @brief Function to get the current time from SNTP server.
- * 
+ *
  * @param p1 Void pointer to the first parameter (not used).
  * @param p2 Void pointer to the second parameter (not used).
  * @param p3 Void pointer to the third parameter (not used).
@@ -45,7 +43,13 @@ int tracker_get_time(struct rtc_time *time)
 		}
 	}
 
-	inet_pton(AF_INET, self.server, &server_addr.sin_addr);
+	LOG_INF("SNTP server: %s", self.server);
+
+	err = inet_pton(AF_INET, self.server, &server_addr.sin_addr);
+
+	if (err < 0) {
+		LOG_ERR("Invalid SNTP server address: %d", err);
+	}
 
 	err = sntp_init(&ctx, (struct sockaddr *)&server_addr, sizeof(struct sockaddr_in));
 
@@ -91,26 +95,26 @@ int tracker_get_time(struct rtc_time *time)
 
 static void time_thread_function(void *p1, void *p2, void *p3)
 {
-    struct rtc_time time;
-    int err;
-    
-    while (1) {
-        err = tracker_get_time(&time);
-        if (err) {
-            LOG_ERR("Failed to get time from SNTP: %d", err);
-        } else {
-            err = k_msgq_put(&time_msgq, &time, K_NO_WAIT);
-            if (err) {
-                LOG_WRN("Time queue full, message not sent");
-            } else {
-                LOG_INF("Time sent to main thread: %04d-%02d-%02d %02d:%02d:%02d", 
-                    time.tm_year, time.tm_mon + 1, time.tm_mday, 
-                    time.tm_hour, time.tm_min, time.tm_sec);
-            }
-        }
-        
-        k_sleep(K_MINUTES(1));
-    }
+	struct rtc_time time;
+	int err;
+
+	while (1) {
+		err = tracker_get_time(&time);
+		if (err) {
+			LOG_ERR("Failed to get time from SNTP: %d", err);
+		} else {
+			err = k_msgq_put(&time_msgq, &time, K_NO_WAIT);
+			if (err) {
+				LOG_WRN("Time queue full, message not sent");
+			} else {
+				LOG_INF("Time sent to main thread: %04d-%02d-%02d %02d:%02d:%02d",
+					time.tm_year, time.tm_mon + 1, time.tm_mday, time.tm_hour,
+					time.tm_min, time.tm_sec);
+			}
+		}
+
+		k_sleep(K_MINUTES(1));
+	}
 }
 
 K_THREAD_DEFINE(time_thread, 1024, time_thread_function, NULL, NULL, NULL, 3, 0, 0);
