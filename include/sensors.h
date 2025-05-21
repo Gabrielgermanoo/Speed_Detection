@@ -31,4 +31,9 @@ int32_t sensors_get_speed(void);
  */
 bool sensors_is_vehicle_detected(void);
 
+/**
+ * @brief Clear the vehicle detection status.
+ */
+ void sensors_clear_detection(void);
+
 #endif /* SENSORS_H */

@@ -68,4 +68,36 @@ menu "Tracker Configuration"
                 lower priority threads. A value of 5 is generally a good starting
                 point for most applications.
     endmenu
+
+    menu "SNTP Configuration"
+        config DEFAULT_SNTP_SERVER
+            string "Default SNTP server"
+            default "200.160.7.186"
+            help
+                The default SNTP server to use for time synchronization. This
+                server will be used if no other server is specified. The server
+                should be reachable from the network and should support SNTP
+                requests.
+    endmenu
+
+    menu "Simulation Configuration"
+        config SYSTEM_SIMULATION
+            bool "Enable system simulation"
+            default n
+            help
+                This option enables the system simulation mode. In this mode,
+                the system will simulate the behavior of the vehicle speed detection
+                system without actually using any hardware. This is useful for
+                testing and debugging purposes.
+        config SIMULATION_SPEED
+            int "Simulation speed (km/h)"
+            range 0 300
+            default 60
+            depends on SYSTEM_SIMULATION
+            help
+                The speed of the simulated vehicle in kilometers per hour. This
+                value is used to simulate the behavior of the vehicle speed detection
+                system. A value of 60 km/h is generally a good starting point for
+                most applications.
+    endmenu
 endmenu
