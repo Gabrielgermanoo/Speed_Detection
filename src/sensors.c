@@ -54,10 +54,10 @@ static void sensor2_callback(const struct device *dev, struct gpio_callback *cb,
 static void speed_calc_thread_entry(void *arg1, void *arg2, void *arg3);
 
 /**
- * @brief Simula a passagem de um veículo pelos sensores
+ * @brief Simulate vehicle detection for testing purposes.
  *
- * @param speed_kmh Velocidade desejada em km/h (se 0, usa velocidade padrão de 80 km/h)
- * @return int 0 em caso de sucesso, código de erro negativo em caso de falha
+ * @param speed_kmh Speed in km/h to simulate.
+ * @return 0 on success, otherwise negative error code on failure.
  */
 int sensors_simulate_vehicle_detection(int32_t speed_kmh);
 
@@ -136,7 +136,6 @@ int sensors_init(void)
 		return ret;
 	}
 
-	// Inicializa e adiciona callback do sensor 1
 	gpio_init_callback(&sensor1_cb_data, sensor1_callback, BIT(SENSOR1_PIN));
 	ret = gpio_add_callback(SENSOR_1, &sensor1_cb_data);
 	if (ret < 0) {
@@ -144,7 +143,6 @@ int sensors_init(void)
 		return ret;
 	}
 
-	// Inicializa e adiciona callback do sensor 2
 	gpio_init_callback(&sensor2_cb_data, sensor2_callback, BIT(SENSOR2_PIN));
 	ret = gpio_add_callback(SENSOR_2, &sensor2_cb_data);
 	if (ret < 0) {
