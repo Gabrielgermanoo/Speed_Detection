@@ -1,4 +1,6 @@
 #include "sensors.h"
+#include "zephyr/devicetree.h"
+#include "zephyr/devicetree/gpio.h"
 #include "zephyr/drivers/gpio.h"
 #include <stdbool.h>
 #include <zephyr/kernel.h>
@@ -6,8 +8,8 @@
 #define SENSOR_1 DEVICE_DT_GET(DT_ALIAS(sensor1))
 #define SENSOR_2 DEVICE_DT_GET(DT_ALIAS(sensor2))
 
-#define SENSOR1_PIN 1
-#define SENSOR2_PIN 0
+#define SENSOR1_PIN DT_GPIO_PIN(DT_NODELABEL(sensor1), gpios)
+#define SENSOR2_PIN DT_GPIO_PIN(DT_NODELABEL(sensor2), gpios)
 
 LOG_MODULE_REGISTER(sensors, LOG_LEVEL_DBG);
 
@@ -121,8 +123,6 @@ int sensors_init(void)
 		LOG_ERR("Sensor devices not ready");
 		return -ENODEV;
 	}
-
-	LOG_WRN("SENSOR_1: name=%s, pin=%d", SENSOR_1->name, SENSOR1_PIN);
 
 	ret = gpio_pin_configure(SENSOR_1, SENSOR1_PIN, GPIO_INPUT);
 	if (ret < 0) {
