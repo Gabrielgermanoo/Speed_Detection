@@ -2,6 +2,8 @@
 #include "sensors.h"
 #include "syscalls/kernel.h"
 #include "zephyr/kernel.h"
+#include "camera_service.h"
+#include "camera_handler.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -42,8 +44,6 @@ int main(void)
 						latest_time.tm_sec, latest_time.tm_mday,
 						latest_time.tm_mon + 1, latest_time.tm_year);
 
-					/* TODO make the camera "take" a picture of car
-					And send it to a web server (using python) */
 				} else {
 					struct rtc_time now;
 
@@ -56,9 +56,18 @@ int main(void)
 						LOG_ERR("Failed to get SNTP time");
 					}
 				}
+
+				const char *plate = NULL;
+				const char *hash = NULL;
+				if (camera_handler_capture(&plate, &hash) == 0) {
+					LOG_INF("Captured plate: %s", plate);
+					LOG_DBG("Captured image hash: %s", hash);
+					/*TODO: send to python server*/
+				} else {
+					LOG_ERR("Failed to capture plate");
+				}
 			}
 			sensors_clear_detection();
-			/* TODO show the value of the vehicle velocity */
 		}
 	}
 }
