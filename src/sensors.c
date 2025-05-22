@@ -1,9 +1,7 @@
 #include "sensors.h"
-#include "zephyr/devicetree.h"
-#include "zephyr/devicetree/gpio.h"
-#include "zephyr/drivers/gpio.h"
-#include <stdbool.h>
-#include <zephyr/kernel.h>
+#include "zephyr/logging/log.h"
+#include "zephyr/sys/util_macro.h"
+#include "zephyr/zbus/zbus.h"
 
 #define SENSOR_1 DEVICE_DT_GET(DT_ALIAS(sensor1))
 #define SENSOR_2 DEVICE_DT_GET(DT_ALIAS(sensor2))
@@ -19,14 +17,11 @@ static int32_t latest_speed_kmh;
 static bool vehicle_detected;
 static bool system_initialized;
 
-static K_THREAD_STACK_DEFINE(speed_calc_stack, CONFIG_THREAD_STACK_SIZE);
-
-static struct k_thread speed_calc_thread;
-
-static K_SEM_DEFINE(measurement_sem, 0, 1);
-
 static struct gpio_callback sensor1_cb_data;
 static struct gpio_callback sensor2_cb_data;
+
+ZBUS_CHAN_DEFINE(chan_sensors_evt, struct sensor_event, NULL, NULL, ZBUS_OBSERVERS(sensor_consumer),
+		 ZBUS_MSG_INIT(.speed_kmh = 0, .vehicle_detected = false));
 
 /**
  * @brief Callback function for sensor 1.
@@ -47,21 +42,20 @@ static void sensor1_callback(const struct device *dev, struct gpio_callback *cb,
 static void sensor2_callback(const struct device *dev, struct gpio_callback *cb, uint32_t pins);
 
 /**
- * @brief Thread entry function for speed calculation.
- *
- * @param arg1 Unused argument.
- * @param arg2 Unused argument.
- * @param arg3 Unused argument.
- */
-static void speed_calc_thread_entry(void *arg1, void *arg2, void *arg3);
-
-/**
  * @brief Simulate vehicle detection for testing purposes.
  *
  * @param speed_kmh Speed in km/h to simulate.
  * @return 0 on success, otherwise negative error code on failure.
  */
 int sensors_simulate_vehicle_detection(int32_t speed_kmh);
+
+/**
+ * @brief Trigger a sensor manually for testing purposes.
+ *
+ * @param sensor_num Sensor number to trigger (1 or 2).
+ * @return 0 on success, otherwise negative error code on failure.
+ */
+int trigger_sensor_manually(int sensor_num);
 
 static void sensor1_callback(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
@@ -73,45 +67,39 @@ static void sensor1_callback(const struct device *dev, struct gpio_callback *cb,
 static void sensor2_callback(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
 	sensor2_timestamp = k_uptime_get();
+	struct sensor_event evt = {
+		.speed_kmh = latest_speed_kmh,
+		.vehicle_detected = true,
+	};
+	int err = 0;
+
 	LOG_INF("Sensor 2 triggered at %lld ms", sensor2_timestamp);
 
-	k_sem_give(&measurement_sem);
-}
+	int64_t time_diff_ms = sensor2_timestamp - sensor1_timestamp;
 
-static void speed_calc_thread_entry(void *arg1, void *arg2, void *arg3)
-{
-	ARG_UNUSED(arg1);
-	ARG_UNUSED(arg2);
-	ARG_UNUSED(arg3);
-	int64_t time_diff_ms = 0;
-	float speed_ms = 0.0f;
-	float time_diff_s = 0.0f;
+	if (time_diff_ms < 0) {
+		LOG_ERR("Sensor 2 triggered before sensor 1");
+		return;
+	}
 
-	while (1) {
-		k_sem_take(&measurement_sem, K_MSEC(1000));
+	if (IS_ENABLED(CONFIG_SYSTEM_SIMULATION)) {
+		sensors_simulate_vehicle_detection(120);
+		return;
+	}
 
-		time_diff_ms = sensor2_timestamp - sensor1_timestamp;
+	if (time_diff_ms > 0) {
+		float time_diff_s = time_diff_ms / 1000.0f;
+		float speed_ms = CONFIG_SENSOR_DISTANCE_MM / time_diff_s;
+		latest_speed_kmh = (int32_t)(speed_ms * 3.6f);
 
-		if (time_diff_ms < 0) {
-			LOG_ERR("Sensor 2 triggered before sensor 1");
-			continue;
+		LOG_INF("Speed: %d km/h", latest_speed_kmh);
+
+		err = zbus_chan_pub(&chan_sensors_evt, &evt, K_NO_WAIT);
+		if (err < 0) {
+			LOG_ERR("Failed to publish sensor event: %d", err);
 		}
-
-		if (IS_ENABLED(CONFIG_SYSTEM_SIMULATION)) {
-			sensors_simulate_vehicle_detection(120);
-			k_sleep(K_SECONDS(5));
-			continue;
-		}
-
-		if (time_diff_ms > 0) {
-			time_diff_s = time_diff_ms / 1000.0f;
-			speed_ms = CONFIG_SENSOR_DISTANCE_MM / time_diff_s;
-			latest_speed_kmh = (int32_t)(speed_ms * 3.6f);
-
-			LOG_INF("Speed: %d km/h", latest_speed_kmh);
-		} else {
-			LOG_ERR("Invalid time difference");
-		}
+	} else {
+		LOG_ERR("Invalid time difference");
 	}
 }
 
@@ -162,28 +150,42 @@ int sensors_init(void)
 		return ret;
 	}
 
-	k_thread_create(&speed_calc_thread, speed_calc_stack, CONFIG_THREAD_STACK_SIZE,
-			speed_calc_thread_entry, NULL, NULL, NULL, CONFIG_THREAD_PRIORITY, 0,
-			K_NO_WAIT);
-
 	LOG_INF("Sensors initialized");
 	system_initialized = true;
+
+	if (IS_ENABLED(CONFIG_SYSTEM_SIMULATION)) {
+		trigger_sensor_manually(1);
+		k_sleep(K_MSEC(100));
+		trigger_sensor_manually(2);
+		k_sleep(K_MSEC(100));
+		sensors_simulate_vehicle_detection(120);
+		k_sleep(K_MSEC(100));
+		trigger_sensor_manually(1);
+		k_sleep(K_MSEC(100));
+		trigger_sensor_manually(2);
+		
+	} 
+
 	return 0;
 }
 
-int32_t sensors_get_speed(void)
+int trigger_sensor_manually(int sensor_num)
 {
-	return latest_speed_kmh;
-}
+	if (!system_initialized) {
+		LOG_ERR("Sensors not initialized");
+		return -EINVAL;
+	}
 
-bool sensors_is_vehicle_detected(void)
-{
-	return vehicle_detected;
-}
+	if (sensor_num == 1) {
+		sensor1_callback(SENSOR_1, &sensor1_cb_data, BIT(SENSOR1_PIN));
+	} else if (sensor_num == 2) {
+		sensor2_callback(SENSOR_2, &sensor2_cb_data, BIT(SENSOR2_PIN));
+	} else {
+		LOG_ERR("Invalid sensor number: %d", sensor_num);
+		return -EINVAL;
+	}
 
-void sensors_clear_detection(void)
-{
-    vehicle_detected = false;
+	return 0;
 }
 
 int sensors_simulate_vehicle_detection(int32_t speed_kmh)
@@ -208,12 +210,21 @@ int sensors_simulate_vehicle_detection(int32_t speed_kmh)
 
 	sensor2_timestamp = current_time + time_between_sensors;
 
-	k_sem_give(&measurement_sem);
-
 	LOG_INF("Simulated vehicle at %d km/h (time delay: %lld ms)", speed_kmh,
 		time_between_sensors);
-	
+
 	latest_speed_kmh = speed_kmh;
+
+	struct sensor_event evt = {
+		.speed_kmh = speed_kmh,
+		.vehicle_detected = true,
+	};
+
+	int err = zbus_chan_pub(&chan_sensors_evt, &evt, K_MSEC(100));
+
+	if (err) {
+		LOG_ERR("Failed to publish simulated sensor event: %d", err);
+	}
 
 	return 0;
 }
