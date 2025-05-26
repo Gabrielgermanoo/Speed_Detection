@@ -153,19 +153,6 @@ int sensors_init(void)
 	LOG_INF("Sensors initialized");
 	system_initialized = true;
 
-	if (IS_ENABLED(CONFIG_SYSTEM_SIMULATION)) {
-		trigger_sensor_manually(1);
-		k_sleep(K_MSEC(100));
-		trigger_sensor_manually(2);
-		k_sleep(K_MSEC(100));
-		sensors_simulate_vehicle_detection(120);
-		k_sleep(K_MSEC(100));
-		trigger_sensor_manually(1);
-		k_sleep(K_MSEC(100));
-		trigger_sensor_manually(2);
-		
-	} 
-
 	return 0;
 }
 
@@ -190,41 +177,26 @@ int trigger_sensor_manually(int sensor_num)
 
 int sensors_simulate_vehicle_detection(int32_t speed_kmh)
 {
+	static struct sensor_event evt_data;
+
 	if (!system_initialized) {
 		LOG_ERR("Sensors not initialized");
 		return -EINVAL;
 	}
 
-	if (speed_kmh <= 0) {
-		speed_kmh = 80;
-	}
-
-	int32_t distance_mm = CONFIG_SENSOR_DISTANCE_MM;
-
-	int64_t time_between_sensors = (int64_t)((distance_mm * 3.6) / speed_kmh);
-
-	int64_t current_time = k_uptime_get();
-
-	sensor1_timestamp = current_time;
+	latest_speed_kmh = speed_kmh;
 	vehicle_detected = true;
 
-	sensor2_timestamp = current_time + time_between_sensors;
+	evt_data.speed_kmh = latest_speed_kmh;
+	evt_data.vehicle_detected = vehicle_detected;
 
-	LOG_INF("Simulated vehicle at %d km/h (time delay: %lld ms)", speed_kmh,
-		time_between_sensors);
-
-	latest_speed_kmh = speed_kmh;
-
-	struct sensor_event evt = {
-		.speed_kmh = speed_kmh,
-		.vehicle_detected = true,
-	};
-
-	int err = zbus_chan_pub(&chan_sensors_evt, &evt, K_MSEC(100));
-
-	if (err) {
-		LOG_ERR("Failed to publish simulated sensor event: %d", err);
+	int err = zbus_chan_pub(&chan_sensors_evt, &evt_data, K_NO_WAIT);
+	if (err < 0) {
+		LOG_ERR("Failed to publish sensor event: %d", err);
+		return err;
 	}
+
+	LOG_INF("Simulated vehicle detection at %d km/h", latest_speed_kmh);
 
 	return 0;
 }
