@@ -89,7 +89,7 @@ static void sensor2_callback(const struct device *dev, struct gpio_callback *cb,
 
 	if (time_diff_ms > 0) {
 		float time_diff_s = time_diff_ms / 1000.0f;
-		float speed_ms = CONFIG_SENSOR_DISTANCE_MM / time_diff_s;
+		float speed_ms = CONFIG_RADAR_SENSOR_DISTANCE_MM / time_diff_s;
 		latest_speed_kmh = (int32_t)(speed_ms * 3.6f);
 
 		LOG_INF("Speed: %d km/h", latest_speed_kmh);
