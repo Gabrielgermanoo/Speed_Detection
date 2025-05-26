@@ -12,7 +12,7 @@ menu "Tracker Configuration"
             This option enables the vehicle speed detection feature in the system.
             It allows the system to monitor and report the speed of the vehicle in real-time.
             This feature is essential for applications that require speed monitoring and control.
-    config SENSOR_DISTANCE_MM
+    config RADAR_SENSOR_DISTANCE_MM
         int "Distance between sensors (mm)"
         range 100 1000
         depends on VEHICLE_SPEED_DETECTION
@@ -22,7 +22,7 @@ menu "Tracker Configuration"
             over both sensors. A larger distance generally provides more accurate
             speed measurements but requires more space for installation.
     
-    config SPEED_LIMIT_KMH
+    config RADAR_SPEED_LIMIT_KMH
         int "Maximum speed permited (km/h)"
         range 10 300
         default 60

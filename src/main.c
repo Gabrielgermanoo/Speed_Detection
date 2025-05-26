@@ -78,7 +78,7 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 		return -EINVAL;
 	}
 
-	if (speed > CONFIG_SPEED_LIMIT_KMH) {
+	if (speed > CONFIG_RADAR_SPEED_LIMIT_KMH) {
 		LOG_INF("Speed violation detected! %d km/h", speed);
 
 		if (time_valid && latest_time != NULL) {
