@@ -16,6 +16,16 @@
             gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
         };
     };
+    
+    dummy_dc: dummy_display_controller {
+        compatible = "zephyr,dummy-dc";
+        width = <320>;
+        height = <240>;
+        status = "okay";
+    };
+    chosen {
+        zephyr,display = &dummy_dc;
+    };
 };
 &eth {
     status = "okay";

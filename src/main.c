@@ -3,8 +3,7 @@
 #include "rtc.h"
 #include "sensors.h"
 #include "validate_plate.h"
-#include "zephyr/kernel.h"
-#include "zephyr/zbus/zbus.h"
+#include "display.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -28,9 +27,15 @@ int main(void)
 	int err;
 	struct sensor_event evt;
 	const struct zbus_channel *evt_chan;
-	int ret = sensors_init();
 
-	if (ret < 0) {
+	err = display_speed_init();
+	if (err < 0) {
+		LOG_ERR("Failed to initialize display: %d", err);
+		return 0;
+	}
+	
+	err = sensors_init();
+	if (err < 0) {
 		LOG_ERR("Failed to initialize sensors");
 		return 0;
 	}
@@ -67,7 +72,11 @@ int main(void)
 		if (evt.vehicle_detected) {
 			int32_t speed = evt.speed_kmh;
 
-			ret = validate_and_process_speed(speed, time_valid, &latest_time);
+			err = validate_and_process_speed(speed, time_valid, &latest_time);
+			if (err < 0) {
+				LOG_ERR("Failed to process speed data: %d", err);
+				continue;
+			}
 		}
 	}
 }
@@ -77,6 +86,15 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 	if (speed < 0 || speed > 500) {
 		LOG_WRN("Invalid speed value: %d km/h - ignoring", speed);
 		return -EINVAL;
+	}
+
+	char speed_text[32];
+	snprintf(speed_text, sizeof(speed_text), "Speed: %d km/h", speed);
+
+	int err = display_speed_show(speed_text);
+	if (err < 0) {
+		LOG_ERR("Failed to write speed to display: %d", err);
+		return err;
 	}
 
 	if (speed > CONFIG_RADAR_SPEED_LIMIT_KMH) {
