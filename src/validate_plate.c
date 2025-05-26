@@ -1,4 +1,47 @@
 #include "validate_plate.h"
+/**
+ * @brief Matches a license plate string against a pattern format.
+ *
+ * @param plate The input license plate string to validate.
+ * @param format The format string used as a pattern.
+ *
+ * @return true if the plate matches the format; false otherwise.
+*/
+static bool match_format(const char *plate, const char *format);
+
+/**
+ * @brief Checks if the license plate matches Brazilian formats.
+ *
+ * Expected format: AAA9A99.
+ *
+ * @param plate The input license plate string.
+ *
+ * @return true if the plate matches a Brazilian format; false otherwise.
+*/
+static bool match_br(const char *plate);
+
+/**
+ * @brief Checks if the license plate matches Paraguayan formats.
+ *
+ * Supports both car format (AAAA 999) and motorcycle format (999 AAAA).
+ *
+ * @param plate The input license plate string.
+ *
+ * @return true if the plate matches a Paraguayan format; false otherwise.
+*/
+static bool match_py(const char *plate);
+
+/**
+ * @brief Checks if the license plate matches Argentine format.
+ *
+ * Expected format: AA 999 AA (with space characters).
+ *
+ * @param plate The input license plate string.
+ *
+ * @return true if the plate matches the Argentine format; false otherwise.
+*/
+static bool match_ar(const char *plate);
+
 
 static bool match_format(const char *plate, const char *format) {
     while (*plate && *format) {

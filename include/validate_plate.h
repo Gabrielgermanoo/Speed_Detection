@@ -1,3 +1,6 @@
+#ifndef VALIDATE_PLATE_H
+#define VALIDATE_PLATE_H
+
 #include <zephyr/kernel.h>
 #include <string.h>
 #include <ctype.h>
@@ -16,3 +19,5 @@
  */
 
  bool is_valid_mercosul_plate(const char *plate, char *country_out);
+
+ #endif /* VALIDATE_PLATE_H */
