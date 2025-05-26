@@ -78,6 +78,26 @@ menu "Tracker Configuration"
                 server will be used if no other server is specified. The server
                 should be reachable from the network and should support SNTP
                 requests.
+
+        config TIME_SYNC_INTERVAL_MS
+            int "Time synchronization interval (ms)"
+            default 3600000
+            range 60000 86400000
+            help
+                The interval in milliseconds at which the system will synchronize
+                its time with the SNTP server. A value of 3600000 ms (1 hour) is
+                a good starting point for most applications, but can be adjusted
+                based on the application's requirements.
+        
+        config NUMBER_OF_RETRIES
+            int "Number of retries for SNTP requests"
+            default 3
+            range 1 10
+            help
+                The number of times the system will retry to synchronize time with
+                the SNTP server if the initial request fails. A value of 3 is a good
+                starting point, but can be adjusted based on network reliability and
+                application requirements. 
     endmenu
 
     menu "Simulation Configuration"
