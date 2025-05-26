@@ -59,7 +59,7 @@ static bool match_br(const char *plate) {
     {
         return false;
     }
-    return match_format(plate, "AAA9A99") || match_format(plate, "AAA9999");
+    return match_format(plate, "AAA9A99");
 }
 
 static bool match_py(const char *plate) {
