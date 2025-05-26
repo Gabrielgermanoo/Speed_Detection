@@ -2,6 +2,7 @@
 #include "camera_service.h"
 #include "rtc.h"
 #include "sensors.h"
+#include "validate_plate.h"
 #include "zephyr/kernel.h"
 #include "zephyr/zbus/zbus.h"
 
@@ -101,11 +102,21 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 
 		const char *plate = NULL;
 		const char *hash = NULL;
+		char country[3];
+
 		if (camera_handler_capture(&plate, &hash) == 0) {
 			LOG_INF("Captured plate: %s", plate);
 			LOG_DBG("Captured image hash: %s", hash);
-			/*TODO: send to python server*/
-			return 1;
+			if(is_valid_mercosul_plate(plate,country))
+			{
+				LOG_INF("Captured plate is valid and is from: %s", country);
+				/*send to python server the validation and the country*/
+			}
+			else
+			{
+				LOG_INF("Captured plate is invalid!");
+				/*TODO: send to python server that the plate is not valid*/
+			}
 		} else {
 			LOG_ERR("Failed to capture plate");
 			return -EIO;
