@@ -100,6 +100,66 @@ menu "Tracker Configuration"
                 application requirements. 
     endmenu
 
+    menu "HTTP Client Configuration"
+        config SERVER_HOSTNAME
+            string "Server hostname"
+            default "192.168.0.12"
+            help
+                The hostname of the server to which the HTTP client will connect.
+                This should be a valid hostname that resolves to an IP address
+                reachable from the device. The default is set to "example.com",
+                but should be changed to the actual server you want to connect to.
+
+        config SERVER_PORT
+            int "Server port"
+            default 5000
+            range 1 65535
+            help
+                The port number on which the server is listening for HTTP requests.
+                The default is set to 80, which is the standard port for HTTP traffic.
+                If your server uses a different port, you should change this value accordingly.
+
+        config SERVER_URL
+            string "Server URL"
+            default "/api/speed-infractions"
+            help
+                The URL path on the server to which the HTTP client will send requests.
+                This should be set to the specific endpoint that the server expects for
+                receiving data. The default is set to "/api/speed-infractions", but should be changed
+                to match your server's API.
+        
+        config CLIENT_MAX_RECV_BUF_LEN
+            int "Maximum receive buffer length"
+            default 1024
+            range 256 8192
+            help
+                The maximum length of the receive buffer for the HTTP client.
+                This value determines how much data the client can read from the server
+                in a single response. A larger buffer allows for larger responses,
+                but consumes more memory. A value of 1024 bytes is generally a good starting point.
+        
+        config RECV_BUF_LEN
+            int "Receive buffer length"
+            default 512
+            range 128 4096
+            help
+                The length of the receive buffer used by the HTTP client. This buffer
+                is used to store incoming data from the server. A larger buffer allows
+                for more data to be received at once, but also consumes more memory.
+                A value of 512 bytes is generally a good starting point for most applications.
+        
+        config RECV_TIMEOUT_MS
+            int "Receive timeout (ms)"
+            default 5000
+            range 1000 30000
+            help
+                The timeout in milliseconds for receiving data from the server.
+                If no data is received within this time, the client will consider
+                the request failed. A value of 5000 ms (5 seconds) is a good starting point,
+                but can be adjusted based on network conditions and application requirements.
+
+    endmenu
+
     menu "Simulation Configuration"
         config SYSTEM_SIMULATION
             bool "Enable system simulation"

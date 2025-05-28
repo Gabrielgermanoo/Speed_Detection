@@ -1,9 +1,10 @@
 #include "camera_handler.h"
 #include "camera_service.h"
+#include "data_http_client.h"
+#include "display.h"
 #include "rtc.h"
 #include "sensors.h"
 #include "validate_plate.h"
-#include "display.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -33,7 +34,7 @@ int main(void)
 		LOG_ERR("Failed to initialize display: %d", err);
 		return 0;
 	}
-	
+
 	err = sensors_init();
 	if (err < 0) {
 		LOG_ERR("Failed to initialize sensors");
@@ -83,6 +84,8 @@ int main(void)
 
 static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc_time *latest_time)
 {
+	char timestamp[20];
+
 	if (speed < 0 || speed > 500) {
 		LOG_WRN("Invalid speed value: %d km/h - ignoring", speed);
 		return -EINVAL;
@@ -105,7 +108,43 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 				latest_time->tm_hour, latest_time->tm_min, latest_time->tm_sec,
 				latest_time->tm_mday, latest_time->tm_mon + 1,
 				latest_time->tm_year);
-			/* TODO send the data to a python server */
+			const char *plate = NULL;
+			const char *hash = NULL;
+			char country[3];
+
+			if (camera_handler_capture(&plate, &hash) == 0) {
+				LOG_INF("Captured plate: %s", plate);
+				LOG_DBG("Captured image hash: %s", hash);
+				if (is_valid_mercosul_plate(plate, country)) {
+					LOG_INF("Captured plate is valid and is from: %s", country);
+					if (time_valid) {
+						snprintf(timestamp, sizeof(timestamp), "%02d:%02d:%02d %02d/%02d/%04d",
+							latest_time->tm_hour, latest_time->tm_min, latest_time->tm_sec,
+							latest_time->tm_mday, latest_time->tm_mon + 1,
+							latest_time->tm_year);
+					} else {
+						strncpy(timestamp, "N/A", sizeof(timestamp));
+					}
+					err = send_infraction_data(speed, plate, country, timestamp);
+					if (err < 0) {
+						LOG_ERR("Failed to send infraction data: %d", err);
+					} else {
+						LOG_INF("Infraction data sent successfully");
+					}
+				} else {
+					LOG_INF("Captured plate is invalid!");
+					/*TODO: send to python server that the plate is not valid*/
+					err = send_infraction_data(speed, plate, "N/A", "N/A");
+					if (err < 0) {
+						LOG_ERR("Failed to send infraction data for invalid plate: %d", err);
+					} else {
+						LOG_INF("Infraction data for invalid plate sent successfully");
+					}
+				}
+			} else {
+				LOG_ERR("Failed to capture plate");
+				return -EIO;
+			}
 		} else {
 			struct rtc_time now;
 
@@ -116,28 +155,6 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 			} else {
 				LOG_ERR("Failed to get SNTP time");
 			}
-		}
-
-		const char *plate = NULL;
-		const char *hash = NULL;
-		char country[3];
-
-		if (camera_handler_capture(&plate, &hash) == 0) {
-			LOG_INF("Captured plate: %s", plate);
-			LOG_DBG("Captured image hash: %s", hash);
-			if(is_valid_mercosul_plate(plate,country))
-			{
-				LOG_INF("Captured plate is valid and is from: %s", country);
-				/*send to python server the validation and the country*/
-			}
-			else
-			{
-				LOG_INF("Captured plate is invalid!");
-				/*TODO: send to python server that the plate is not valid*/
-			}
-		} else {
-			LOG_ERR("Failed to capture plate");
-			return -EIO;
 		}
 	}
 
