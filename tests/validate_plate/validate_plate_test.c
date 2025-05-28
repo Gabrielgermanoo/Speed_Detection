@@ -4,7 +4,7 @@
 
 ZTEST_SUITE(test_br_plates, NULL, NULL, NULL, NULL, NULL);
 
-ZTEST(validate_plate_tests, test_valid_br_plate)
+ZTEST(test_br_plates, test_valid_br_plate)
 {
 	char country[3] = {0};
 	bool res = is_valid_mercosul_plate("ABC1D23", country);
@@ -24,7 +24,7 @@ ZTEST(test_br_plates, test_invalid_br_plates)
 
 ZTEST_SUITE(test_ar_plates, NULL, NULL, NULL, NULL, NULL);
 
-ZTEST(validate_plate_tests, test_valid_ar_plate)
+ZTEST(test_ar_plates, test_valid_ar_plate)
 {
 	char country[3] = {0};
 	bool res = is_valid_mercosul_plate("AB 123 CD", country);
@@ -41,7 +41,7 @@ ZTEST(test_ar_plates, test_invalid_ar_plates)
 
 ZTEST_SUITE(test_py_plates, NULL, NULL, NULL, NULL, NULL);
 
-ZTEST(validate_plate_tests, test_valid_py_plate_car)
+ZTEST(test_py_plates, test_valid_py_plate_car)
 {
 	char country[3] = {0};
 	bool res = is_valid_mercosul_plate("ABCD 123", country);
@@ -60,11 +60,11 @@ ZTEST(test_py_plates, test_invalid_py_plates)
 	zassert_false(res, "Short PY plate should be rejected");
 }
 
+ZTEST_SUITE(validate_plate_tests, NULL, NULL, NULL, NULL, NULL);
+
 ZTEST(validate_plate_tests, test_invalid_plate)
 {
 	char country[3] = {0};
 	bool res = is_valid_mercosul_plate("INVALID", country);
 	zassert_false(res, "Expected invalid plate");
 }
-
-ZTEST_SUITE(validate_plate_tests, NULL, NULL, NULL, NULL, NULL);

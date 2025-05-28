@@ -1,1 +1,4 @@
-tests : validate_plate.test : platform_allow : qemu_cortex_m3 tags : validate_plate
+tests:
+  validate_plate.test:
+    platform_allow: qemu_cortex_m3
+    tags: validate_plate
