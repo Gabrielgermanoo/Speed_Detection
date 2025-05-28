@@ -38,7 +38,7 @@ static int prepare_json_data(char *buffer, size_t len, int32_t speed, const char
 
 /**
  * @brief Fuction to connect to the HTTP server
- * 
+ *
  * @return 0 if successful, otherwise negative error code
  */
 static int connect_http_client(void);

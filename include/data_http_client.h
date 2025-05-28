@@ -2,16 +2,15 @@
 #define DATA_HTTP_CLIENT_H
 
 #include <zephyr/kernel.h>
-#include <zephyr/net/socket.h>
-#include <zephyr/net/http/client.h>
-#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/net/http/client.h>
+#include <zephyr/net/socket.h>
 
 #include <stdint.h>
 
 /**
  * @brief Send infraction data to the server.
- * 
+ *
  * @param speed Speed in km/h of the vehicle.
  * @param plate Vehicle license plate number.
  * @param country Country code of the vehicle.

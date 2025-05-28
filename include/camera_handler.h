@@ -1,5 +1,5 @@
-#include <zephyr/logging/log.h>
 #include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 /**
  * @brief Captures a simulated image via camera.

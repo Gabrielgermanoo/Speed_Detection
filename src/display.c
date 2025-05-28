@@ -6,15 +6,15 @@ const struct device *display_dev;
 
 /**
  * @brief Render the given text on the display.
- * 
+ *
  * @param text The text to display.
- * @return 0 on success, otherwise negative error code on failure. 
+ * @return 0 on success, otherwise negative error code on failure.
  */
 static int display_speed_write(const char *text);
 
 /**
  * @brief Clear the speed display by writing a blank buffer to the display.
- * 
+ *
  * @return 0 on success, otherwise negative error code on failure.
  */
 static int display_speed_clear(void);
@@ -57,41 +57,41 @@ static int display_speed_clear(void)
 
 static int display_speed_write(const char *text)
 {
-    int err = 0;
-    if (!display_dev) {
-        LOG_ERR("Display device not initialized");
-        return -ENODEV;
-    }
+	int err = 0;
+	if (!display_dev) {
+		LOG_ERR("Display device not initialized");
+		return -ENODEV;
+	}
 
-    err = display_speed_clear();
-    if (err < 0) {
-        LOG_ERR("Failed to clear display: %d", err);
-        return err;
-    }
+	err = display_speed_clear();
+	if (err < 0) {
+		LOG_ERR("Failed to clear display: %d", err);
+		return err;
+	}
 
-    struct display_buffer_descriptor desc = {
-        .buf_size = strlen(text),
-        .width = 320,
-        .height = 240,
-        .pitch = 320,
-    };
+	struct display_buffer_descriptor desc = {
+		.buf_size = strlen(text),
+		.width = 320,
+		.height = 240,
+		.pitch = 320,
+	};
 
-    return display_write(display_dev, 0, 0, &desc, (const uint8_t *)text);
+	return display_write(display_dev, 0, 0, &desc, (const uint8_t *)text);
 }
 
 int display_speed_show(const char *text)
 {
-    if (!display_dev) {
-        LOG_ERR("Display device not initialized");
-        return -ENODEV;
-    }
+	if (!display_dev) {
+		LOG_ERR("Display device not initialized");
+		return -ENODEV;
+	}
 
-    int err = display_speed_write(text);
-    if (err < 0) {
-        LOG_ERR("Failed to write text to display: %d", err);
-        return err;
-    }
+	int err = display_speed_write(text);
+	if (err < 0) {
+		LOG_ERR("Failed to write text to display: %d", err);
+		return err;
+	}
 
-    LOG_INF("Speed: %s", text);
-    return 0;
+	LOG_INF("Speed: %s", text);
+	return 0;
 }

@@ -1,5 +1,5 @@
-#include "camera_service.h"
 #include "camera_handler.h"
+#include "camera_service.h"
 
 LOG_MODULE_REGISTER(camera_handler, LOG_LEVEL_INF);
 

@@ -2,7 +2,7 @@
 
 LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
-#define TIME_QUEUE_SIZE          5
+#define TIME_QUEUE_SIZE 5
 
 K_MSGQ_DEFINE(time_msgq, sizeof(struct rtc_time), TIME_QUEUE_SIZE, 4);
 
@@ -33,14 +33,14 @@ int tracker_get_time(struct rtc_time *time)
 	memset(&ctx, 0, sizeof(ctx));
 
 	err = inet_pton(AF_INET, self.server, &server_addr.sin_addr);
-	
+
 	if (err < 0) {
 		LOG_ERR("Invalid SNTP server address: %d", err);
 		return -EINVAL;
 	}
 
 	err = sntp_init(&ctx, (struct sockaddr *)&server_addr, sizeof(struct sockaddr_in));
-	
+
 	if (err < 0) {
 		LOG_ERR("Failed to initialize SNTP: %d", err);
 		return err;
@@ -85,13 +85,13 @@ static void time_thread_function(void *p1, void *p2, void *p3)
 	int err;
 
 	while (1) {
-        err = tracker_get_time(&time);
-        if (err == 0) {
-            k_msgq_purge(&time_msgq);
-            k_msgq_put(&time_msgq, &time, K_NO_WAIT);
-        }
-        k_sleep(K_SECONDS(1));
-    }
+		err = tracker_get_time(&time);
+		if (err == 0) {
+			k_msgq_purge(&time_msgq);
+			k_msgq_put(&time_msgq, &time, K_NO_WAIT);
+		}
+		k_sleep(K_SECONDS(1));
+	}
 }
 
 K_THREAD_DEFINE(time_thread, 1024, time_thread_function, NULL, NULL, NULL, 3, 0, 0);

@@ -4,6 +4,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
 @app.route("/api/speed-infractions", methods=["POST"])
 def speed_infractions():
     data = request.get_json()
@@ -48,6 +49,7 @@ def speed_infractions():
     return jsonify(
         {"message": "Speed infraction recorded successfully", "infraction": infraction}
     ), 201
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

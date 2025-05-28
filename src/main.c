@@ -118,14 +118,17 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 				if (is_valid_mercosul_plate(plate, country)) {
 					LOG_INF("Captured plate is valid and is from: %s", country);
 					if (time_valid) {
-						snprintf(timestamp, sizeof(timestamp), "%02d:%02d:%02d %02d/%02d/%04d",
-							latest_time->tm_hour, latest_time->tm_min, latest_time->tm_sec,
-							latest_time->tm_mday, latest_time->tm_mon + 1,
-							latest_time->tm_year);
+						snprintf(timestamp, sizeof(timestamp),
+							 "%02d:%02d:%02d %02d/%02d/%04d",
+							 latest_time->tm_hour, latest_time->tm_min,
+							 latest_time->tm_sec, latest_time->tm_mday,
+							 latest_time->tm_mon + 1,
+							 latest_time->tm_year);
 					} else {
 						strncpy(timestamp, "N/A", sizeof(timestamp));
 					}
-					err = send_infraction_data(speed, plate, country, timestamp);
+					err = send_infraction_data(speed, plate, country,
+								   timestamp);
 					if (err < 0) {
 						LOG_ERR("Failed to send infraction data: %d", err);
 					} else {
@@ -136,9 +139,12 @@ static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc
 					/*TODO: send to python server that the plate is not valid*/
 					err = send_infraction_data(speed, plate, "N/A", "N/A");
 					if (err < 0) {
-						LOG_ERR("Failed to send infraction data for invalid plate: %d", err);
+						LOG_ERR("Failed to send infraction data for "
+							"invalid plate: %d",
+							err);
 					} else {
-						LOG_INF("Infraction data for invalid plate sent successfully");
+						LOG_INF("Infraction data for invalid plate sent "
+							"successfully");
 					}
 				}
 			} else {
