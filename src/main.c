@@ -84,7 +84,7 @@ int main(void)
 
 static int validate_and_process_speed(int32_t speed, bool time_valid, struct rtc_time *latest_time)
 {
-	char timestamp[20];
+	char timestamp[32];
 
 	if (speed < 0 || speed > 500) {
 		LOG_WRN("Invalid speed value: %d km/h - ignoring", speed);

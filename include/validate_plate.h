@@ -1,6 +1,8 @@
 #ifndef VALIDATE_PLATE_H
 #define VALIDATE_PLATE_H
 
+#include <ctype.h>
+#include <string.h>
 #include <zephyr/kernel.h>
 
 /**
