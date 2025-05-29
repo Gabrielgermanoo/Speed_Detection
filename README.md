@@ -59,7 +59,7 @@ O sistema utiliza múltiplas threads para operação concorrente:
 
 ### Pré-requisitos
 
-- **Zephyr SDK** versão 0.16.0 ou superior
+- **Zephyr SDK** versão 0.17.0 ou superior
 - **Python 3.8+** para o servidor web
 - **QEMU** para emulação (opcional)
 - **West** (Zephyr's meta-tool)
@@ -68,9 +68,9 @@ O sistema utiliza múltiplas threads para operação concorrente:
 
 ```bash
 # Baixar e instalar o Zephyr SDK
-wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.8/zephyr-sdk-0.16.0_linux-x86_64.tar.gz
-tar xvf zephyr-sdk-0.16.8_linux-x86_64.tar.gz
-cd zephyr-sdk-0.16.8
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.8/zephyr-sdk-0.17.0_linux-x86_64.tar.gz
+tar xvf zephyr-sdk-0.17.0_linux-x86_64.tar.gz
+cd zephyr-sdk-0.17.0
 ./setup.sh
 ```
 
@@ -202,7 +202,7 @@ python scripts/server.py
     "timestamp": "28/05/2025 10:30:00",
     "plate": "ABC1234",
     "speed": 90,
-    "country": 'BR',
+    "country": "BR"
 }
 ```
 
