@@ -1,0 +1,183 @@
+menu "Zephyr"
+source "Kconfig.zephyr"
+endmenu
+
+menu "Tracker Configuration"
+    menu "Vehicle Speed Detection"
+
+    config VEHICLE_SPEED_DETECTION
+        bool "Enable Vehicle Speed Detection"
+        default y
+        help
+            This option enables the vehicle speed detection feature in the system.
+            It allows the system to monitor and report the speed of the vehicle in real-time.
+            This feature is essential for applications that require speed monitoring and control.
+    config RADAR_SENSOR_DISTANCE_MM
+        int "Distance between sensors (mm)"
+        range 100 1000
+        depends on VEHICLE_SPEED_DETECTION
+        help
+            The physical distance between the two magnetic sensors in millimeters.
+            This value is used to calculate vehicle speed when a vehicle passes
+            over both sensors. A larger distance generally provides more accurate
+            speed measurements but requires more space for installation.
+    
+    config RADAR_SPEED_LIMIT_KMH
+        int "Maximum speed permited (km/h)"
+        range 10 300
+        default 60
+        depends on VEHICLE_SPEED_DETECTION
+        help
+            The maximum allowed vehicle speed in kilometers per hour.
+            This value is used to trigger alarms or log over-speed events
+            when a vehicle's calculated speed exceeds this limit.
+            Adjust this setting according to local traffic regulations.
+
+    config SENSOR_DEBOUNCE_MS
+        int "Sensor debounce time (ms)"
+        range 10 500
+        default 50
+        depends on VEHICLE_SPEED_DETECTION
+        help
+            The debounce time for the sensors in milliseconds. This is the time
+            that the system will wait after detecting a signal from one sensor
+            before considering it valid. A longer debounce time can help to filter
+            out noise and false signals, but may also delay the detection of a vehicle.
+            A value of 10ms is generally a good starting point.
+    endmenu
+    
+    menu "Thread Configuration"
+        config THREAD_STACK_SIZE
+            int "Max stack size used in threads"
+            default 1024
+            help
+                The maximum stack size used in threads. This value is used to
+                allocate the stack space for each thread. A larger stack size
+                allows for more complex operations and more local variables,
+                but also consumes more memory. A value of 1024 bytes is generally
+                a good starting point for most applications.
+
+        config THREAD_PRIORITY
+            int "Thread priority"
+            default 5
+            range 0 10
+            help
+                The priority of the threads in the system. This value determines
+                the order in which threads are scheduled for execution. A higher
+                priority value means that the thread will be executed before
+                lower priority threads. A value of 5 is generally a good starting
+                point for most applications.
+    endmenu
+
+    menu "SNTP Configuration"
+        config DEFAULT_SNTP_SERVER
+            string "Default SNTP server"
+            default "200.160.7.186"
+            help
+                The default SNTP server to use for time synchronization. This
+                server will be used if no other server is specified. The server
+                should be reachable from the network and should support SNTP
+                requests.
+
+        config TIME_SYNC_INTERVAL_MS
+            int "Time synchronization interval (ms)"
+            default 3600000
+            range 60000 86400000
+            help
+                The interval in milliseconds at which the system will synchronize
+                its time with the SNTP server. A value of 3600000 ms (1 hour) is
+                a good starting point for most applications, but can be adjusted
+                based on the application's requirements.
+        
+        config NUMBER_OF_RETRIES
+            int "Number of retries for SNTP requests"
+            default 3
+            range 1 10
+            help
+                The number of times the system will retry to synchronize time with
+                the SNTP server if the initial request fails. A value of 3 is a good
+                starting point, but can be adjusted based on network reliability and
+                application requirements. 
+    endmenu
+
+    menu "HTTP Client Configuration"
+        config SERVER_HOSTNAME
+            string "Server hostname"
+            default "192.168.0.12"
+            help
+                The hostname of the server to which the HTTP client will connect.
+                This should be a valid hostname that resolves to an IP address
+                reachable from the device. The default is set to "example.com",
+                but should be changed to the actual server you want to connect to.
+
+        config SERVER_PORT
+            int "Server port"
+            default 5000
+            range 1 65535
+            help
+                The port number on which the server is listening for HTTP requests.
+                The default is set to 80, which is the standard port for HTTP traffic.
+                If your server uses a different port, you should change this value accordingly.
+
+        config SERVER_URL
+            string "Server URL"
+            default "/api/speed-infractions"
+            help
+                The URL path on the server to which the HTTP client will send requests.
+                This should be set to the specific endpoint that the server expects for
+                receiving data. The default is set to "/api/speed-infractions", but should be changed
+                to match your server's API.
+        
+        config CLIENT_MAX_RECV_BUF_LEN
+            int "Maximum receive buffer length"
+            default 1024
+            range 256 8192
+            help
+                The maximum length of the receive buffer for the HTTP client.
+                This value determines how much data the client can read from the server
+                in a single response. A larger buffer allows for larger responses,
+                but consumes more memory. A value of 1024 bytes is generally a good starting point.
+        
+        config RECV_BUF_LEN
+            int "Receive buffer length"
+            default 512
+            range 128 4096
+            help
+                The length of the receive buffer used by the HTTP client. This buffer
+                is used to store incoming data from the server. A larger buffer allows
+                for more data to be received at once, but also consumes more memory.
+                A value of 512 bytes is generally a good starting point for most applications.
+        
+        config RECV_TIMEOUT_MS
+            int "Receive timeout (ms)"
+            default 5000
+            range 1000 30000
+            help
+                The timeout in milliseconds for receiving data from the server.
+                If no data is received within this time, the client will consider
+                the request failed. A value of 5000 ms (5 seconds) is a good starting point,
+                but can be adjusted based on network conditions and application requirements.
+
+    endmenu
+
+    menu "Simulation Configuration"
+        config SYSTEM_SIMULATION
+            bool "Enable system simulation"
+            default n
+            help
+                This option enables the system simulation mode. In this mode,
+                the system will simulate the behavior of the vehicle speed detection
+                system without actually using any hardware. This is useful for
+                testing and debugging purposes.
+        config SIMULATION_SPEED
+            int "Simulation speed (km/h)"
+            range 0 300
+            default 60
+            depends on SYSTEM_SIMULATION
+            help
+                The speed of the simulated vehicle in kilometers per hour. This
+                value is used to simulate the behavior of the vehicle speed detection
+                system. A value of 60 km/h is generally a good starting point for
+                most applications.
+    endmenu
+endmenu
