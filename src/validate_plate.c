@@ -78,10 +78,10 @@ static bool match_py(const char *plate)
 
 static bool match_ar(const char *plate)
 {
-	if (strlen(plate) != 9) {
+	if (strlen(plate) != 9 || strlen(plate) != 7) {
 		return false;
 	}
-	return match_format(plate, "AA 999 AA");
+	return match_format(plate, "AA 999 AA") || match_format(plate, "A999AAA");
 }
 
 bool is_valid_mercosul_plate(const char *plate, char *country_out)
