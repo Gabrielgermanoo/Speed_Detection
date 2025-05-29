@@ -1,0 +1,32 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+/ {
+    aliases {
+        sensor1 = &gpio0;
+        sensor2 = &gpio0;
+    };
+
+    sensors {
+        compatible = "gpio-keys";
+        debounce-interval-ms = <10>;
+        sensor1: sensor_1{
+            gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+        };
+
+        sensor2: sensor_2{
+            gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+        };
+    };
+    
+    dummy_dc: dummy_display_controller {
+        compatible = "zephyr,dummy-dc";
+        width = <320>;
+        height = <240>;
+        status = "okay";
+    };
+    chosen {
+        zephyr,display = &dummy_dc;
+    };
+};
+&eth {
+    status = "okay";
+};
